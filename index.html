@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>房地产行业政策与销售数据跟踪分析看板（2026）</title>
+  <meta name="description" content="2026年中国房地产行业最新政策时间线跟踪、核心观点对比分析、关键词词云可视化，及销售开发数据同比环比可视化看板。" />
+  <link rel="stylesheet" href="css/style.css" />
+  <!-- 粗壮黑体字体（词云用） -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@900&display=swap" rel="stylesheet" />
+  <!-- ECharts 图表库 -->
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+  <!-- wordcloud2.js 词云库 -->
+  <script src="https://cdn.jsdelivr.net/gh/timdream/wordcloud2.js/src/wordcloud2.min.js"></script>
+</head>
+<body>
+  <!-- 顶部导航 -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <span class="brand-logo">📊</span>
+        <div>
+          <h1>房地产行业政策与销售数据跟踪分析看板</h1>
+          <p class="brand-sub">2026年度 · 政策时间线 / 词云分析 / 销售开发数据可视化</p>
+        </div>
+      </div>
+      <nav class="top-nav">
+        <a href="#cum-overview">累计概览</a>
+        <a href="#overview">单月概览</a>
+        <a href="#policies">政策时间线</a>
+        <a href="#wordcloud">关键词词云</a>
+        <a href="#data">销售开发数据</a>
+        <a href="#tables">数据表格</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- 累计指标概览（1-N月累计 + 同比） -->
+  <section id="cum-overview" class="section container">
+    <div class="section-head">
+      <h2 id="cumMetricTitle">📊 累计指标概览（2026年1-7月）</h2>
+      <span class="section-note">数据来源：国家统计局《全国房地产市场基本情况》月度新闻稿 · 同比按可比口径计算</span>
+    </div>
+    <div class="metric-grid" id="cumMetricGrid"></div>
+  </section>
+
+  <!-- 关键指标概览（单月 + 环比） -->
+  <section id="overview" class="section container">
+    <div class="section-head">
+      <h2 id="metricTitle">📌 核心指标概览（2026年7月单月）</h2>
+      <span class="section-note">数据来源：国家统计局 / 中指研究院 / 克而瑞</span>
+    </div>
+    <div class="metric-grid" id="metricGrid"></div>
+  </section>
+
+  <!-- 政策时间线 -->
+  <section id="policies" class="section section-alt">
+    <div class="container">
+      <div class="section-head">
+        <h2>🏛️ 国家级房地产政策时间线</h2>
+        <span class="section-note">2026年1月-7月 · 按发布时间排序 · 点击卡片展开核心观点与对比分析</span>
+      </div>
+      <div class="filter-bar" id="policyFilter"></div>
+      <div class="timeline" id="policyTimeline"></div>
+    </div>
+  </section>
+
+  <!-- 关键词词云 -->
+  <section id="wordcloud" class="section container">
+    <div class="section-head">
+      <h2>☁️ 政策核心关键词词云</h2>
+      <span class="section-note">基于全部政策核心观点提取，字体越大表示权重越高</span>
+    </div>
+    <div class="wordcloud-wrap">
+      <canvas id="wordcloudCanvas" width="900" height="450"></canvas>
+      <p class="wordcloud-tip" id="wordcloudTip">鼠标悬停关键词可查看权重</p>
+    </div>
+  </section>
+
+  <!-- 销售开发数据可视化 -->
+  <section id="data" class="section section-alt">
+    <div class="container">
+      <div class="section-head">
+        <h2>📈 销售与开发数据可视化</h2>
+        <span class="section-note">单月数据 · 环比分析 · 2026年2-6月</span>
+      </div>
+
+      <div class="chart-grid">
+        <div class="chart-card chart-wide">
+          <h3>房地产开发投资完成额（单月 + 环比）</h3>
+          <div class="chart" id="chart-investment"></div>
+        </div>
+        <div class="chart-card chart-wide">
+          <h3>商品房销售面积与销售额（单月 + 环比）</h3>
+          <div class="chart" id="chart-sales"></div>
+        </div>
+        <div class="chart-card chart-wide">
+          <h3>商品房单月销售面积与环比增速</h3>
+          <div class="chart" id="chart-sales-mom"></div>
+        </div>
+        <div class="chart-card">
+          <h3>商品房待售面积（期末值）</h3>
+          <div class="chart" id="chart-inventory"></div>
+        </div>
+        <div class="chart-card">
+          <h3>新开工 / 竣工 / 施工（单月 + 环比）</h3>
+          <div class="chart" id="chart-construction"></div>
+        </div>
+        <div class="chart-card chart-wide">
+          <h3>房地产开发企业到位资金结构（单月）</h3>
+          <div class="chart" id="chart-funding"></div>
+        </div>
+        <div class="chart-card chart-wide">
+          <h3>70城商品住宅价格环比变动（分线城市）</h3>
+          <div class="chart" id="chart-price70"></div>
+        </div>
+        <div class="chart-card chart-wide">
+          <h3>2026年1-7月TOP10房企销售：累计额 + 单月 + 环比/同比增速</h3>
+          <div class="chart" id="chart-developers"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 数据表格 -->
+  <section id="tables" class="section container">
+    <div class="section-head">
+      <h2>📋 数据明细表格</h2>
+      <span class="section-note">含环比分析 · 单月数据</span>
+    </div>
+    <div class="table-tabs" id="tableTabs">
+      <button class="tab-btn active" data-table="investment">开发投资</button>
+      <button class="tab-btn" data-table="sales">商品房销售</button>
+      <button class="tab-btn" data-table="construction">开工竣工</button>
+      <button class="tab-btn" data-table="funding">到位资金</button>
+    </div>
+    <div class="table-wrap" id="tableContainer"></div>
+  </section>
+
+  <!-- 页脚 -->
+  <footer class="site-footer">
+    <div class="container">
+      <p class="footer-title">房地产行业政策与销售数据跟踪分析看板</p>
+      <p class="footer-meta">
+        数据收集截止：2026-07-31 ｜ 政策来源：政府官网及权威媒体 ｜ 数据来源：国家统计局、中指研究院、克而瑞研究中心
+      </p>
+      <p class="footer-disclaimer">免责声明：本看板仅用于行业研究与信息聚合，数据均来自公开来源，不构成任何投资建议。部分政策文件文号以权威媒体报道为准，建议以官方原始文件为最终依据。</p>
+    </div>
+  </footer>
+
+  <!-- 数据文件 -->
+  <script src="js/data/policies.js"></script>
+  <script src="js/data/keywords.js"></script>
+  <script src="js/data/sales.js"></script>
+  <!-- 渲染脚本 -->
+  <script src="js/timeline.js"></script>
+  <script src="js/wordcloud.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/tables.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

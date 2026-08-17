@@ -1,0 +1,54 @@
+// ===== 自动抓取累计数据（2026-08-17 17:48）=====
+// 数据来源: 国家统计局 2026年1—7月份全国房地产市场基本情况 - 国家统计局
+// 累计月份: 1-7
+// 说明: 以下为累计值，单月值已自动追加到 sales.js 各数组
+
+// 开发投资（累计，亿元）
+investment_cumulative: {
+  total: 43009,
+  residential: 33172,
+  office: 1580,
+  commercial: 2809,
+  yoy: {
+    total: -19.2,
+    residential: -19.1
+  }
+},
+
+// 商品房销售（累计）
+sales_cumulative: {
+  area: 45021,
+  amount: 42718,
+  residentialArea: 37425,
+  residentialAmount: 37543,
+  yoy: {
+    area: -11.8,
+    amount: -13.1
+  }
+},
+
+// 待售面积（期末，万㎡）
+inventory_cumulative: {
+  total: 75911,
+  residential: 40556,
+  office: 5200,
+  commercial: 13535
+},
+
+// 到位资金（累计，亿元）
+funding_cumulative: {
+  total: 45748,
+  domestic: 6300,
+  foreign: 4,
+  self: 16544,
+  deposit: 14376,
+  mortgage: 6040
+},
+
+// 开工竣工（累计，万㎡）
+construction_cumulative: {
+  construction: 557572,
+  newStart: 26700,
+  complete: 19195
+}
+// ===== 抓取数据结束 =====
