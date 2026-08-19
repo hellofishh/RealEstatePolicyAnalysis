@@ -77,7 +77,7 @@
         mom: lastOr((inv.mom || {}).total, null), period: lastPeriod + '单月' },
       { label: '新建商品房销售额', value: lastOr(s.amount, 0), unit: '亿元',
         mom: lastOr((s.mom || {}).amount, null), period: lastPeriod + '单月' },
-      { label: '商品房销售面积', value: lastOr(s.area, 0), unit: '万㎡',
+      { label: '新建商品房销售面积', value: lastOr(s.area, 0), unit: '万㎡',
         mom: lastOr((s.mom || {}).area, null), period: lastPeriod + '单月' },
       { label: '房屋新开工面积', value: lastOr(con.newStart, 0), unit: '万㎡',
         mom: lastOr((con.mom || {}).newStart, null), period: lastPeriod + '单月' },

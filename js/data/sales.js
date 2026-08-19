@@ -158,7 +158,7 @@ window.SALES_DATA = {
       { label: '房地产开发投资',   value: 43009, unit: '亿元', yoy: -19.2 },
       { label: '住宅投资',         value: 33172, unit: '亿元', yoy: -19.1 },
       { label: '新建商品房销售额',     value: 42718, unit: '亿元', yoy: -13.1 },
-      { label: '商品房销售面积',   value: 45021, unit: '万㎡', yoy: -11.8 },
+      { label: '新建商品房销售面积',   value: 45021, unit: '万㎡', yoy: -11.8 },
       { label: '住宅销售面积',     value: 37425, unit: '万㎡', yoy: -12.7 },
       { label: '房屋新开工面积',   value: 26700, unit: '万㎡', yoy: -24.0 },
       { label: '房屋竣工面积',     value: 19195, unit: '万㎡', yoy: -23.2 },
