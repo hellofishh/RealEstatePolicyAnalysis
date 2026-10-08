@@ -299,32 +299,22 @@
     return chart;
   }
 
-  /* ===== 8. 房企TOP10（2026年1-7月累计 + 单月环比+同比）===== */
+  /* ===== 8. 房企TOP10（2026年1-9月累计 vs 2025年同期 + 累计同比）===== */
   function chartDevelopers() {
     var chart = init('chart-developers'); if (!chart) return;
     var list = D.developers.top10 || [];
     var names = list.map(function (d) { return d.name; });
 
-    // 动态计算各项数据
-    var cum7 = list.map(function (d) { return d.cum7; });
-    var amountJul = list.map(function (d) { return d.cum7 - d.cum6; }); // 7月单月
-    var amountJun = list.map(function (d) { return d.cum6 - d.cum5; }); // 6月单月
-    var amountJul25 = list.map(function (d) { return d.cum7_25 - d.cum6_25; }); // 2025年7月单月
-
-    // 环比 = (7月单月 - 6月单月) / 6月单月
-    var mom = list.map(function (d, i) {
-      if (amountJun[i] === 0) return null;
-      return ((amountJul[i] - amountJun[i]) / amountJun[i]) * 100;
-    });
-
-    // 单月同比 = (2026年7月单月 - 2025年7月单月) / 2025年7月单月
-    var yoy = list.map(function (d, i) {
-      if (amountJul25[i] === 0) return null;
-      return ((amountJul[i] - amountJul25[i]) / amountJul25[i]) * 100;
+    var cum9 = list.map(function (d) { return d.cum9; });
+    var cum9_25 = list.map(function (d) { return d.cum9_25; });
+    // 累计同比 = (2026年1-9月累计 - 2025年1-9月累计) / 2025年1-9月累计
+    var yoy = list.map(function (d) {
+      if (!d.cum9_25) return null;
+      return ((d.cum9 - d.cum9_25) / d.cum9_25) * 100;
     });
 
     var colors = list.map(function (d) {
-      return d.cum7 >= 1500 ? C.accent : C.primary;
+      return d.cum9 >= 1500 ? C.accent : C.primary;
     });
 
     chart.setOption({
@@ -333,43 +323,38 @@
         formatter: function (ps) {
           var idx = ps[0].dataIndex;
           var d = list[idx];
-          var cumTxt = d.cum7 + ' 亿元';
-          var julTxt = amountJul[idx].toFixed(1) + ' 亿元';
-          var momTxt = mom[idx] == null ? '—' : (mom[idx] >= 0 ? '+' : '') + mom[idx].toFixed(1) + '%';
           var yoyTxt = yoy[idx] == null ? '—' : (yoy[idx] >= 0 ? '+' : '') + yoy[idx].toFixed(1) + '%';
-          var momColor = mom[idx] != null && mom[idx] >= 0 ? C.up : C.down;
           var yoyColor = yoy[idx] != null && yoy[idx] >= 0 ? C.up : C.down;
-          
+
           return d.name +
-            '<br/><b>1-7月累计：</b>' + cumTxt +
-            '<br/><b>7月单月：</b>' + julTxt +
-            '<br/><span style="color:' + momColor + ';font-weight:700">环比：' + momTxt + '</span>' +
-            '<br/><span style="color:' + yoyColor + ';font-weight:700">单月同比：' + yoyTxt + '</span>';
+            '<br/><b>2026年1-9月累计：</b>' + d.cum9 + ' 亿元' +
+            '<br/><b>2025年同期累计：</b>' + d.cum9_25 + ' 亿元' +
+            '<br/><span style="color:' + yoyColor + ';font-weight:700">累计同比：' + yoyTxt + '</span>';
         }
       },
-      legend: { data: ['1-7月累计销售额', '7月单月销售额', '单月环比增速', '单月同比增速'], top: 0  },
+      legend: { data: ['2026年1-9月累计销售额', '2025年1-9月同期', '累计同比增速'], top: 0  },
       grid: { left: 50, right: 70, top: 40, bottom: 50 },
       xAxis: { type: 'category', data: names, axisLabel: { interval: 0, rotate: 0 } },
       yAxis: [
         { type: 'value', name: '金额(亿元)', axisLabel: { formatter: '{value}' } },
-        { type: 'value', name: '增速(%)', axisLabel: { formatter: '{value}%' }, splitLine: { show: false } }
+        { type: 'value', name: '同比(%)', axisLabel: { formatter: '{value}%' }, splitLine: { show: false } }
       ],
       series: [
         {
-          name: '1-7月累计销售额', type: 'bar',
-          data: cum7.map(function (v, i) { return { value: v, itemStyle: { color: colors[i] } }; }),
-          barWidth: 30,
-          label: { show: true, position: 'top', formatter: function (p) { return cum7[p.dataIndex] + ''; }, fontSize: 15, fontWeight: 600 }
+          name: '2026年1-9月累计销售额', type: 'bar',
+          data: cum9.map(function (v, i) { return { value: v, itemStyle: { color: colors[i] } }; }),
+          barWidth: 26,
+          label: { show: true, position: 'top', formatter: function (p) { return cum9[p.dataIndex] + ''; }, fontSize: 15, fontWeight: 600 }
         },
         {
-          name: '7月单月销售额', type: 'bar', barGap: '10%',
-          data: amountJul.map(function (v) { return { value: v, itemStyle: { color: C.bar2 } }; }),
-          barWidth: 20,
-          label: { show: true, position: 'top', formatter: function (p) { return amountJul[p.dataIndex].toFixed(0) + ''; }, fontSize: 15, color: '#0d1729' }
+          name: '2025年1-9月同期', type: 'bar', barGap: '10%',
+          data: cum9_25.map(function (v) { return { value: v, itemStyle: { color: C.bar2 } }; }),
+          barWidth: 26,
+          label: { show: true, position: 'top', formatter: function (p) { return cum9_25[p.dataIndex].toFixed(0); }, fontSize: 15, color: '#0d1729' }
         },
         {
-          name: '单月环比增速', type: 'line', yAxisIndex: 1,
-          data: mom,
+          name: '累计同比增速', type: 'line', yAxisIndex: 1,
+          data: yoy,
           itemStyle: { color: C.accent },
           lineStyle: { width: 2.5, type: 'solid' },
           symbol: 'diamond', symbolSize: 8,
@@ -382,18 +367,6 @@
             silent: true, symbol: 'none',
             lineStyle: { color: '#9aa9c4', type: 'dashed', width: 1.5 },
             data: [{ yAxis: 0 }]
-          }
-        },
-        {
-          name: '单月同比增速', type: 'line', yAxisIndex: 1,
-          data: yoy,
-          itemStyle: { color: C.up },
-          lineStyle: { width: 2.5, type: 'dashed' },
-          symbol: 'circle', symbolSize: 8,
-          label: {
-            show: true, position: 'top',
-            formatter: function (p) { return p.value == null ? '' : (p.value >= 0 ? '+' : '') + p.value.toFixed(1) + '%'; },
-            fontSize: 15, color: '#dc2626', fontWeight: 600
           }
         }
       ]

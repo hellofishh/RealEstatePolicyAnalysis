@@ -1,7 +1,7 @@
 /**
  * 政策时间线渲染
- * - 按时间正序展示政策卡片
- * - 支持按类别筛选
+ * - 按季度分组，以 Tab 方式切换展示（默认显示最新季度）
+ * - 支持按类别筛选（作用于当前季度 Tab 内，无匹配时显示空状态）
  * - 点击卡片展开核心观点与对比分析
  */
 (function () {
@@ -16,6 +16,32 @@
   Policies.forEach(function (p) {
     if (categories.indexOf(p.category) === -1) categories.push(p.category);
   });
+
+  // ===== 季度分组 =====
+  var QUARTER_META = {
+    1: { label: '第一季度', months: '1月 - 3月' },
+    2: { label: '第二季度', months: '4月 - 6月' },
+    3: { label: '第三季度', months: '7月 - 9月' },
+    4: { label: '第四季度', months: '10月 - 12月' }
+  };
+
+  // 构建按时间顺序排列的季度分组
+  var quarterGroups = [];
+  var quarterIndex = {};
+  Policies.forEach(function (p) {
+    var d = new Date(p.date);
+    var q = Math.floor(d.getMonth() / 3) + 1;
+    var key = d.getFullYear() + '-Q' + q;
+    if (!(key in quarterIndex)) {
+      quarterIndex[key] = quarterGroups.length;
+      quarterGroups.push({ key: key, year: d.getFullYear(), quarter: q, policies: [] });
+    }
+    quarterGroups[quarterIndex[key]].policies.push(p);
+  });
+
+  // 当前激活的季度 Tab（默认最新季度）与当前筛选类别
+  var activeTab = quarterGroups.length - 1;
+  var currentCat = 'all';
 
   function formatDateParts(dateStr) {
     var d = new Date(dateStr);
@@ -50,6 +76,9 @@
     '好房子', '投资品', '消费品',
     '国务院常务会议', '决定草案', '扩面提质', '公积金改革',
     '审议通过', '修订草案', '扩面', '提质',
+    '国务院令', '交房即交证', '预售资金监管', '主体结构封顶',
+    '能拿房再还贷', '三项制度', '基础性制度', '购房贴息',
+    '财政贴息', '带押过户', '风险隔离', '一手交钱一手交房',
   ];
 
   // 转义正则特殊字符
@@ -108,6 +137,41 @@
     );
   }
 
+  // ===== 季度 Tab =====
+  function renderTabs() {
+    var bar = document.getElementById('quarterTabs');
+    var html = quarterGroups.map(function (g, i) {
+      var meta = QUARTER_META[g.quarter];
+      return (
+        '<button class="quarter-tab" data-idx="' + i + '" role="tab">' +
+          '<span class="qt-badge">Q' + g.quarter + '</span>' +
+          '<span class="qt-text">' +
+            '<span class="qt-name">' + g.year + '年' + meta.label + '</span>' +
+            '<span class="qt-sub">' + meta.months + ' · ' + g.policies.length + '条政策</span>' +
+          '</span>' +
+        '</button>'
+      );
+    }).join('');
+    bar.innerHTML = html;
+    bar.addEventListener('click', function (e) {
+      var btn = e.target.closest('.quarter-tab');
+      if (!btn) return;
+      activateTab(parseInt(btn.getAttribute('data-idx'), 10));
+    });
+  }
+
+  function activateTab(idx) {
+    activeTab = idx;
+    var tabs = document.querySelectorAll('#quarterTabs .quarter-tab');
+    tabs.forEach(function (t, i) { t.classList.toggle('active', i === idx); });
+    // 只显示当前季度的卡片，其他季度隐藏
+    document.querySelectorAll('#policyTimeline .quarter-group').forEach(function (g, i) {
+      g.style.display = (i === idx) ? '' : 'none';
+    });
+    // 重新应用类别筛选
+    applyFilter(currentCat);
+  }
+
   function renderFilter() {
     var bar = document.getElementById('policyFilter');
     var html = '<button class="filter-btn active" data-cat="all">全部 (' + Policies.length + ')</button>';
@@ -121,22 +185,52 @@
       if (!btn) return;
       bar.querySelectorAll('.filter-btn').forEach(function (b) { b.classList.remove('active'); });
       btn.classList.add('active');
-      var cat = btn.getAttribute('data-cat');
-      document.querySelectorAll('.policy-item').forEach(function (it) {
-        it.style.display = (cat === 'all' || it.getAttribute('data-category') === cat) ? '' : 'none';
-      });
+      currentCat = btn.getAttribute('data-cat');
+      applyFilter(currentCat);
     });
+  }
+
+  /**
+   * 在当前季度 Tab 内按类别筛选；无匹配时显示空状态
+   */
+  function applyFilter(cat) {
+    var group = document.querySelectorAll('#policyTimeline .quarter-group')[activeTab];
+    if (!group) return;
+    var anyVisible = false;
+    group.querySelectorAll('.policy-item').forEach(function (it) {
+      var show = (cat === 'all' || it.getAttribute('data-category') === cat);
+      it.style.display = show ? '' : 'none';
+      if (show) anyVisible = true;
+    });
+    // 空状态提示
+    var empty = group.querySelector('.quarter-empty');
+    if (!empty) {
+      var div = document.createElement('div');
+      div.className = 'quarter-empty';
+      group.appendChild(div);
+      empty = div;
+    }
+    empty.textContent = '该季度暂无「' + (cat === 'all' ? '' : cat) + '」类政策';
+    empty.style.display = anyVisible ? 'none' : '';
   }
 
   function renderTimeline() {
     var box = document.getElementById('policyTimeline');
-    box.innerHTML = Policies.map(renderItem).join('');
+    box.innerHTML = quarterGroups.map(function (g) {
+      return '<div class="quarter-group" data-quarter="' + escapeHtml(g.key) + '">' +
+        g.policies.map(renderItem).join('') +
+      '</div>';
+    }).join('');
     box.addEventListener('click', function (e) {
       var head = e.target.closest('[data-toggle]');
       if (!head) return;
       head.closest('.policy-item').classList.toggle('expanded');
     });
+    // 默认激活最新季度 Tab
+    activateTab(activeTab);
   }
 
-  window.Timeline = { render: function () { renderFilter(); renderTimeline(); } };
+  window.Timeline = {
+    render: function () { renderTabs(); renderFilter(); renderTimeline(); }
+  };
 })();
